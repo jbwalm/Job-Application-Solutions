@@ -13,13 +13,24 @@ public static class AurorAlgorithm{
 
     public static string Interpolate(string rawText, Dictionary<string, string> dict){
         Regex re = new Regex(@"(?<!\[)\[(\w+)\](?!\])");
+        Regex re2 = new Regex(@"\[\[(\w+)\]\]");
+        Dictionary<string, string> doubleBracketDict = new Dictionary<string, string>();
+        
         var matches = re.Matches(rawText);
-
         if (matches.Count == 0){
             return rawText;
         }
 
-        string output = re.Replace(rawText, match => dict[match.Groups[1].Value]);
+        string halfOutput = re.Replace(rawText, match => dict[match.Groups[1].Value]);
+        
+        matches = re2.Matches(halfOutput);
+        foreach (Match m in matches){
+            int start = 1;
+            string replacement = m.Value.Substring(start, (m.Value.Length-start-1));
+            doubleBracketDict.Add(m.Value, replacement);
+        }
+
+        string output = re2.Replace(halfOutput, match => doubleBracketDict[match.Value]);
         
         return output;
     }
